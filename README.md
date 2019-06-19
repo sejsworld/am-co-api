@@ -28,7 +28,9 @@ Primary code can be found in file /app/controllers/AmazingCoController and route
 SBT can be installed from https://www.scala-sbt.org/
 
 Run in dev mode with reload enabled on osx
-- mkdir ~/data
+- sudo mkdir /var/data
+- cd /var/
+- sudo chomod 777 data
 - sbt clean compile ~run
 - goto localhost:9000
 
@@ -37,5 +39,6 @@ Build docker image and push locally
 - sbt docker:publishLocal
 
 Run docker image
+- mkdir ~/data
 - docker run -p 9000:9000 -v ~/data:/var/data amazing-co-api:latest
 

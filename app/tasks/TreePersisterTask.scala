@@ -17,8 +17,7 @@ import play.api.Configuration
 
 
 class TreePersisterTask @Inject()(configuration: Configuration)(actorSystem: ActorSystem)(implicit executionContext: ExecutionContext) {
-  private val dateTimeFormat = DateTimeFormatter.ofPattern("yyyyMMdd-HH:mm:ss")
-
+  private val dateTimeFormat = DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss")
 
   def getFilePath = {
 

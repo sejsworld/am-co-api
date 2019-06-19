@@ -30,12 +30,12 @@ dockerBaseImage := "openjdk:11-jre-slim"
 dockerBaseImage := "openjdk:latest"
 
 
-dockerCommands ++= Seq(
+/*dockerCommands ++= Seq(
   Cmd("USER", "root"),
   ExecCmd("RUN", "mkdir", "-p", "/var/data/"),
   ExecCmd("RUN", "chown", "-R", "daemon:daemon", "/var/data/"),
   Cmd("USER", "daemon")
-)
+)*/
 
 
 // Adds additional packages into Twirl
