@@ -21,7 +21,7 @@ class TreePersisterTask @Inject()(configuration: Configuration)(actorSystem: Act
 
   def getFilePath = {
 
-    val path = configuration.get[String]("datafBasePath")
+    val path = configuration.get[String]("dataBasePath")
     val directory = new File(path)
     if (!directory.exists()) {
       directory.mkdirs()
