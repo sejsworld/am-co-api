@@ -25,13 +25,16 @@ object Tree {
   import scala.collection.mutable
   import Model._
 
-  private val data = mutable.Map.empty[String, Node]
-
   val currentRootID = "root"
+
+  private val data = mutable.Map.empty[String, Node]
 
   if (data.isEmpty) {
     data.put(currentRootID, Node(currentRootID, 0, None, currentRootID))
   }
+
+  private var persistenceCopy:Option[mutable.Map[String, Node]] = Some(mutable.Map.empty[String, Node])
+
 
   def get(nodeId: NodeId) = data.get(nodeId)
 
@@ -46,6 +49,7 @@ object Tree {
         case Some(parent) =>
           data.put(nodeId, Node(nodeId, parent.height + 1, Some(parantNodeId), currentRootID))
 
+          updatePersistanceCopy
           data.get(nodeId).map(Right(_)).getOrElse(Left("insertion error"))
         case None => Left(s"parent with nodeId $parantNodeId was not found in tree")
       }
@@ -77,9 +81,20 @@ object Tree {
         val updatedNode = node.copy(height = newHeight, parent = Some(newParentId))
         data.put(updatedNode.id, updatedNode)
         updateHeightForChildren(children(node.id), updatedNode.height)
+        updatePersistanceCopy
         updatedNode
       }
     }
+  }
+
+  private def updatePersistanceCopy = {
+    persistenceCopy = Some(data.clone())
+
+  }
+  def getLatestCopy  = {
+    val toBackup = persistenceCopy
+    persistenceCopy = None // not relavant to persist if no changes since last time
+    toBackup
   }
 
   //FIXME persist

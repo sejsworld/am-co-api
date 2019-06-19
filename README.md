@@ -12,7 +12,7 @@ Code and instruction for amazing co api
 
 # Architecture comments
 
-Primary code can be found in file /app/controllers/AmazingCoController and routes are stated in conf/routes
+Primary code can be found in file /app/controllers/AmazingCoController and routes are stated in conf/routes and task is in /app/tasks/TaskPersisterTask
 
 - Tree build as Singleton (Object in scala) and in-memmory for fast look up and modifcation
 - Trees internal datastructure is a map for fast lookup of children and fast modifcation of nodes
@@ -27,7 +27,8 @@ Primary code can be found in file /app/controllers/AmazingCoController and route
 
 SBT can be installed from https://www.scala-sbt.org/
 
-Run in dev mode with reload enabled
+Run in dev mode with reload enabled on osx
+- mkdir ~/data
 - sbt clean compile ~run
 - goto localhost:9000
 
@@ -36,5 +37,5 @@ Build docker image and push locally
 - sbt docker:publishLocal
 
 Run docker image
-- docker run -p 9000:9000 amazing-co-api:latest
+- docker run -p 9000:9000 -v ~/data:/var/data amazing-co-api:latest
 
