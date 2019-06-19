@@ -18,9 +18,9 @@ class TreeSpec extends PlaySpec {
       Tree.addNode("B","root")
       Tree.addNode("C","root")
 
-      Tree.children("root") mustBe List(Node("A",1,Some("root"),"root"), Node("C",1,Some("root"),"root"), Node("B",1,Some("root"),"root"))
+      Tree.children("root") mustBe List(Node("A",1,Some("root"),"root",List()), Node("B",1,Some("root"),"root",List()), Node("C",1,Some("root"),"root",List()))
     }
-    "recalcualte hight of children and node when parent is udpated for node" in {
+    "recalcualte hight of children and node when parent is updated for node" in {
       Tree.addNode("A","root")
       Tree.addNode("AA","A")
       Tree.addNode("AB","A")

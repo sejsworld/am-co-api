@@ -13,7 +13,7 @@ object Model {
   type Success = String
   type NodeId = String
 
-  case class Node(id: NodeId, height: Int, parent: Option[NodeId], root: NodeId)
+  case class Node(id: NodeId, height: Int, parent: Option[NodeId], root: NodeId, children:Seq[NodeId])
 
   implicit val nodeFormat = Json.format[Node]
 
@@ -30,7 +30,7 @@ object Tree {
   private val data = mutable.Map.empty[String, Node]
 
   if (data.isEmpty) {
-    data.put(currentRootID, Node(currentRootID, 0, None, currentRootID))
+    data.put(currentRootID, Node(currentRootID, 0, None, currentRootID,List.empty))
   }
 
   private var persistenceCopy:Option[mutable.Map[String, Node]] = Some(mutable.Map.empty[String, Node])
@@ -38,7 +38,13 @@ object Tree {
 
   def get(nodeId: NodeId) = data.get(nodeId)
 
-  def children(parentNodeId: String): List[Node] = data.values.filter(_.parent.exists(_.equalsIgnoreCase(parentNodeId))).toList
+  def children(parentNodeId: String): List[Node] = {
+    val childrenIds = data.get(parentNodeId) match {
+      case Some(parent) => parent.children
+      case None => Nil
+    }
+    childrenIds.flatMap(data.get(_)).toList
+  }
 
   def addNode(nodeId: NodeId, parantNodeId: NodeId): Either[Error, Node] = {
     try {
@@ -47,8 +53,9 @@ object Tree {
       val parent = data.get(parantNodeId)
       parent match {
         case Some(parent) =>
-          data.put(nodeId, Node(nodeId, parent.height + 1, Some(parantNodeId), currentRootID))
-
+          data.put(nodeId, Node(nodeId, parent.height + 1, Some(parantNodeId), currentRootID, List.empty))
+          val updatedParent = parent.copy(children = parent.children:+nodeId)
+          data.put(updatedParent.id, updatedParent)
           updatePersistanceCopy
           data.get(nodeId).map(Right(_)).getOrElse(Left("insertion error"))
         case None => Left(s"parent with nodeId $parantNodeId was not found in tree")
@@ -80,6 +87,18 @@ object Tree {
         val newHeight = data.get(newParentId).map(_.height).getOrElse(0) + 1
         val updatedNode = node.copy(height = newHeight, parent = Some(newParentId))
         data.put(updatedNode.id, updatedNode)
+
+        val oldParent = node.parent.flatMap(data.get(_))
+        oldParent.map(op => {
+          val updatedOldParent = op.copy(children = op.children.filter(_ != node.id))
+          data.put(updatedOldParent.id, updatedOldParent)
+        })
+
+        data.get(newParentId).map(np => {
+          val updatedNewParent = np.copy(children = np.children :+ node.id)
+          data.put(updatedNewParent.id, updatedNewParent)
+        })
+
         updateHeightForChildren(children(node.id), updatedNode.height)
         updatePersistanceCopy
         Some(updatedNode)
@@ -94,21 +113,11 @@ object Tree {
   }
   def getLatestCopy  = {
     val toBackup = persistenceCopy
-    persistenceCopy = None // not relavant to persist if no changes since last time
+    persistenceCopy = None // not relevant to persist if no changes since last persistance
     toBackup
   }
 
-  //FIXME persist
-  //persist()
-  def persist(canonicalFilename: String = "AmazingCoAPIData.txt") = {
-    //TODO ensure that persistence is thread safe and that the file will not be currupted when several concurrent changes to the tree
-    val file = new File(canonicalFilename)
-    val bw = new BufferedWriter(new FileWriter(file))
-    bw.write(Json.stringify(Json.toJson(data.values)))
-    bw.close()
-  }
-
-  def initializeFromFile(canonicalFilename: String = "AmazingCoAPIData.txt", force: Boolean = false) = ??? //TODO initialize tree from persisted file, if tree size is more than 1 (i.e. containing root) force must be true
+  def initializeFromFile(canonicalFilename: String = "AmazingCoAPIData.txt", force: Boolean = false) = ??? //TODO initialize tree from persisted file, if current tree size is more than 1 (i.e. containing root) force must be true
 }
 
 
@@ -123,11 +132,7 @@ class AmazingCoController @Inject()(cc: ControllerComponents) extends AbstractCo
 
   case class NodeIdDTO(nodeId: NodeId)
 
-  case class NodeWithChildrenDTO(id: NodeId, root: NodeId, parent: Option[NodeId], height: Int, children: Seq[NodeWithChildrenDTO])
-
   implicit val nodeDTOFormat = Json.format[NodeIdDTO]
-  implicit val nodeWithChildrenDTOFormat = Json.format[NodeWithChildrenDTO]
-
 
   def children(parentNodeId: NodeId) = Action { implicit request: Request[AnyContent] =>
     val children = Tree.children(parentNodeId)
@@ -147,17 +152,6 @@ class AmazingCoController @Inject()(cc: ControllerComponents) extends AbstractCo
     val body = request.body.as[NodeIdDTO]
     val updatedNode: Option[Node] = Tree.updateParent(nodeId, body.nodeId)
     updatedNode.map(n=> Ok(Json.toJson(n))).getOrElse(NotFound)
-  }
-
-  def twoLevels(parentNodeId: NodeId) = Action { implicit request: Request[AnyContent] =>
-    val maybeParent = Tree.get(parentNodeId)
-
-    maybeParent.map(parent => {
-      val children = Tree.children(parent.id)
-      val dtoChildren = children.map(node => NodeWithChildrenDTO(node.id, node.root, node.parent, node.height, List.empty))
-      val dto = NodeWithChildrenDTO(parent.id, parent.root, parent.parent, parent.height, dtoChildren)
-      Ok(Json.toJson(dto))
-    }).getOrElse(NotFound)
   }
 }
 

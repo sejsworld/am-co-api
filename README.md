@@ -7,15 +7,15 @@ Code and instruction for amazing co api
 - SBT for build tool
 - Play Framework: lightweight web framework, build on Akka HTTP, with live reload, asynch and best practices build in for better productivity and greater results (No Magic, but has a learning curve)
 - Play Json: chosen for fast and easy json handling.
-- SBT-Native-Packager + docker plugin: Makes it easier to build docker images and work with docker images based for Play Framework
-- Persistance: Scheduled task persisting to file, can and should be improved, could be backed by a noSQL DB, redis or using Postgres LTree extension or moddeled with path enumartion. Should also be able to bootstrap tree from a file.
+- SBT-Native-Packager + docker plugin: Makes it easier to build docker images and work with docker images for Play Framework apps.
+- Persistence: Scheduled task persisting to file every x minutes, can and should be improved, could be backed by a noSQL DB, redis or using Postgres LTree extension or based on path enumeration. Should also be able to bootstrap tree from a file.
 
 # Architecture comments
 
 Primary code can be found in file /app/controllers/AmazingCoController and routes are stated in conf/routes and task is in /app/tasks/TaskPersisterTask
 
-- Tree build as Singleton (Object in scala) and in-memmory for fast look up and modifcation
-- Trees internal datastructure is a map for fast lookup of children and fast modifcation of nodes
+- Tree build as Singleton (Object in scala) and in-memmory for fast look up and modification
+- Trees internal data structure is a map for fast lookup of children and fast modification of nodes
 - Tree height is updated recursively for a node and its children based on parent height + 1, so by using top down this should be fast
 - Routes are: GET  /api/v1/nodes/:id/children       
               POST /api/v1/nodes/:id/children       
