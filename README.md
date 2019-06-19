@@ -16,6 +16,7 @@ Primary code can be found in file /app/controllers/AmazingCoController and route
 
 - Tree build as Singleton (Object in scala) and in-memmory for fast look up and modification
 - Trees internal data structure is a map for fast lookup of children and fast modification of nodes
+- Each Node has a sequence of children ids for faster lookup of children and reduce time wasted when updating heights recursively. It will increase memory footprint, but performance should be better this way.
 - Tree height is updated recursively for a node and its children based on parent height + 1, so by using top down this should be fast
 - Routes are: GET  /api/v1/nodes/:id/children       
               POST /api/v1/nodes/:id/children       
