@@ -73,17 +73,18 @@ object Tree {
     }
   }
 
-  def updateParent(nodeId: NodeId, newParentId: NodeId): Node = {
+  def updateParent(nodeId: NodeId, newParentId: NodeId): Option[Node] = {
     data.get(nodeId) match {
-      case Some(node) if node.parent.exists(_.equalsIgnoreCase(newParentId)) => node
+      case Some(node) if node.parent.exists(_.equalsIgnoreCase(newParentId)) => Some(node)
       case Some(node) => {
         val newHeight = data.get(newParentId).map(_.height).getOrElse(0) + 1
         val updatedNode = node.copy(height = newHeight, parent = Some(newParentId))
         data.put(updatedNode.id, updatedNode)
         updateHeightForChildren(children(node.id), updatedNode.height)
         updatePersistanceCopy
-        updatedNode
+        Some(updatedNode)
       }
+      case None => None
     }
   }
 
@@ -144,8 +145,8 @@ class AmazingCoController @Inject()(cc: ControllerComponents) extends AbstractCo
 
   def updateParent(nodeId: NodeId) = Action(parse.json) { implicit request =>
     val body = request.body.as[NodeIdDTO]
-    val updatedNode = Tree.updateParent(nodeId, body.nodeId)
-    Ok(Json.toJson(updatedNode))
+    val updatedNode: Option[Node] = Tree.updateParent(nodeId, body.nodeId)
+    updatedNode.map(n=> Ok(Json.toJson(n))).getOrElse(NotFound)
   }
 
   def twoLevels(parentNodeId: NodeId) = Action { implicit request: Request[AnyContent] =>

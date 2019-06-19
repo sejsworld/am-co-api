@@ -25,18 +25,8 @@ maintainer in Docker := "sejensen@gmail.com"
 
 dockerUpdateLatest := true
 dockerExposedPorts := Seq(9000)
-dockerBaseImage := "openjdk:11-jre-slim"
 
 dockerBaseImage := "openjdk:latest"
-
-
-/*dockerCommands ++= Seq(
-  Cmd("USER", "root"),
-  ExecCmd("RUN", "mkdir", "-p", "/var/data/"),
-  ExecCmd("RUN", "chown", "-R", "daemon:daemon", "/var/data/"),
-  Cmd("USER", "daemon")
-)*/
-
 
 // Adds additional packages into Twirl
 //TwirlKeys.templateImports += "co.amazing.controllers._"

@@ -29,7 +29,7 @@ class TreePersisterTask @Inject()(configuration: Configuration)(actorSystem: Act
     path
   }
 
-  actorSystem.scheduler.schedule(initialDelay = 1.second, interval = 1.minute) {
+  actorSystem.scheduler.schedule(initialDelay = 2.minutes, interval = 15.minutes) {
     // the block of code that will be executed
     val copy = Tree.getLatestCopy
     copy.map(dataToBackup => {
