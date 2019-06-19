@@ -31,6 +31,7 @@ Run in dev mode with reload enabled on osx
 - sudo mkdir /var/data
 - cd /var/
 - sudo chomod 777 data
+- go back to root folder of project
 - sbt clean compile ~run
 - goto localhost:9000
 
