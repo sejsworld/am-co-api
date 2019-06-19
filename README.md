@@ -7,7 +7,7 @@ Code and instruction for amazing co api
 - SBT for build tool
 - Play Framework: lightweight web framework, build on Akka HTTP, with live reload, asynch and best practices build in for better productivity and greater results (No Magic, but has a learning curve)
 - Play Json: chosen for fast and easy json handling.
-- SBT-Native-Packager + docker plugin: Makes it easier to build docker images and work with docker applications based on Play Framework
+- SBT-Native-Packager + docker plugin: Makes it easier to build docker images and work with docker images based for Play Framework
 - Persistance: Scheduled task persisting to file, can and should be improved, could be backed by a noSQL DB, redis or using Postgres LTree extension or moddeled with path enumartion.
 
 # Architecture comments
